@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0 WITH Swift-exception
+# Copyright (c) 2026 Xudong Xu and the swift-library project authors
+
+"""Build and run an independent local SwiftPM consumer."""
+
+import json
+from pathlib import Path
+import subprocess
+import tempfile
+
+
+root = Path(__file__).resolve().parent.parent
+with tempfile.TemporaryDirectory(prefix="swift-semver-consumer-") as directory:
+    consumer = Path(directory)
+    source = consumer / "Sources/Consumer"
+    source.mkdir(parents=True)
+    (consumer / "Package.swift").write_text(
+        '// swift-tools-version: 6.0\n'
+        'import PackageDescription\n'
+        'let package = Package(\n'
+        '  name: "Consumer",\n'
+        '  platforms: [.macOS(.v15)],\n'
+        '  dependencies: [.package(path: ' + json.dumps(str(root)) + ')],\n'
+        '  targets: [.executableTarget(name: "Consumer", dependencies: [\n'
+        '    .product(name: "SemVer", package: "swift-semver")\n'
+        '  ])]\n'
+        ')\n'
+    )
+    (source / "main.swift").write_text('''import Foundation
+import SemVer
+
+let input = "1.3.0-rc.1+build.42"
+guard let version = Version(input), version > Version(1, 2, 0) else {
+  fatalError("Version parsing or precedence failed")
+}
+precondition(version.description == input)
+precondition(Version("01.2.3") == nil)
+precondition(Version("v1.2.3") == nil)
+let encoded = try JSONEncoder().encode(version)
+let decoded = try JSONDecoder().decode(Version.self, from: encoded)
+precondition(decoded.description == input)
+precondition(Set([Version(1, 2, 3), Version(1, 2, 3, buildMetadataIdentifiers: ["build"])]).count == 1)
+print("SemVer consumer passed")
+''')
+    subprocess.run(["swift", "run", "--package-path", str(consumer), "-c", "release", "Consumer"], check=True)

@@ -1,0 +1,46 @@
+{
+  "repository": "swift-library/swift-semver",
+  "version_file": "VERSION",
+  "version_pattern": "^([^\\n]+)\\n?$",
+  "changelog": "CHANGELOG.md",
+  "check_command": "Scripts/check",
+  "ci": {
+    "include": [
+      {
+        "name": "macos-15-swift-6.0",
+        "runner": "macos-15",
+        "xcode": "16.2",
+        "command": "Scripts/check --compiler-check"
+      },
+      {
+        "name": "macos-26-swift-6.3",
+        "runner": "macos-26",
+        "xcode": "26.6",
+        "command": "Scripts/check --compiler-check"
+      },
+      {
+        "name": "strict-format",
+        "runner": "macos-26",
+        "xcode": "26.6",
+        "command": "Scripts/check --format-check"
+      },
+      {
+        "name": "linux-swift-6.0",
+        "runner": "ubuntu-24.04",
+        "command": "docker run --rm --user \"$(id -u):$(id -g)\" --env HOME=/tmp --volume \"$PWD:/package\" --workdir /package swift:6.0.3-jammy@sha256:b394f699c1844fabf5c01d8a5673639141dc007f500661a4fa56f4ba1f23d87b Scripts/check --compiler-check"
+      }
+    ]
+  },
+  "platforms": {
+    "iOS": [
+      18,
+      26,
+      27
+    ],
+    "macOS": [
+      15,
+      26,
+      27
+    ]
+  }
+}
