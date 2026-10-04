@@ -18,6 +18,7 @@ struct VersionTests {
     let version = try #require(Version(text))
     #expect(version.description == text)
     #expect(Version(version.description) == version)
+    #expect(try Version(parsing: text).description == text)
   }
 
   @Test(arguments: [
@@ -32,6 +33,57 @@ struct VersionTests {
   ])
   func invalidStringsReturnNil(_ text: String) {
     #expect(Version(text) == nil)
+    #expect(throws: Version.ParseError.self) {
+      try Version(parsing: text)
+    }
+  }
+
+  @Test(arguments: [
+    ("1.2", Version.ParseError.invalidCoreComponentCount(2)),
+    ("1.2.3.4", .invalidCoreComponentCount(4)),
+    ("1.a.3", .invalidCoreComponent(index: 1, value: "a")),
+    ("1..3", .invalidCoreComponent(index: 1, value: "")),
+    ("1.2.", .invalidCoreComponent(index: 2, value: "")),
+    ("01.2.3", .leadingZeroInCoreComponent(index: 0, value: "01")),
+    ("1.02.3", .leadingZeroInCoreComponent(index: 1, value: "02")),
+    ("1.2.03", .leadingZeroInCoreComponent(index: 2, value: "03")),
+    ("1.2.3-alpha..1", .invalidPrereleaseIdentifier(index: 1, value: "")),
+    ("1.2.3-", .invalidPrereleaseIdentifier(index: 0, value: "")),
+    ("1.2.3-a_b", .invalidPrereleaseIdentifier(index: 0, value: "a_b")),
+    ("1.2.3-01", .leadingZeroInPrereleaseIdentifier(index: 0, value: "01")),
+    ("1.2.3-alpha.01", .leadingZeroInPrereleaseIdentifier(index: 1, value: "01")),
+    ("1.2.3+build..1", .invalidBuildMetadataIdentifier(index: 1, value: "")),
+    ("1.2.3+", .invalidBuildMetadataIdentifier(index: 0, value: "")),
+    ("1.2.3+a_b", .invalidBuildMetadataIdentifier(index: 0, value: "a_b")),
+    ("1.2.3-β", .nonASCII),
+  ])
+  func parsingReportsTheInvalidComponent(_ text: String, error: Version.ParseError) {
+    #expect(throws: error) {
+      try Version(parsing: text)
+    }
+  }
+
+  @Test func parsingReportsCoreOverflow() {
+    let tooLarge = String(UInt(Int.max) + 1)
+    #expect(throws: Version.ParseError.coreComponentOverflow(index: 0, value: tooLarge)) {
+      try Version(parsing: "\(tooLarge).0.0")
+    }
+  }
+
+  @Test(arguments: [
+    ("0.0.0", false, false),
+    ("0.1.0", false, false),
+    ("0.1.0-alpha", true, false),
+    ("1.0.0", false, true),
+    ("1.2.3+alpha", false, true),
+    ("1.2.3-alpha", true, false),
+    ("1.2.3-beta.1+build.42", true, false),
+    ("1.2.3-rc.1", true, false),
+  ])
+  func releaseStatus(_ text: String, isPrerelease: Bool, isStable: Bool) throws {
+    let version = try Version(parsing: text)
+    #expect(version.isPrerelease == isPrerelease)
+    #expect(version.isStable == isStable)
   }
 
   @Test func componentsAndIntBoundary() throws {
@@ -103,6 +155,24 @@ struct VersionTests {
     }
     #expect(throws: DecodingError.self) {
       try JSONDecoder().decode(Version.self, from: Data("123".utf8))
+    }
+  }
+
+  @Test func decodingPreservesParsingDiagnostics() throws {
+    struct Payload: Decodable {
+      let version: Version
+    }
+
+    let data = Data(#"{"version":"1.2.3-alpha.01"}"#.utf8)
+    do {
+      _ = try JSONDecoder().decode(Payload.self, from: data)
+      Issue.record("Decoding an invalid semantic version should fail.")
+    } catch DecodingError.dataCorrupted(let context) {
+      #expect(context.codingPath.map(\.stringValue) == ["version"])
+      #expect(
+        context.underlyingError as? Version.ParseError
+          == .leadingZeroInPrereleaseIdentifier(index: 1, value: "01"))
+      #expect(context.debugDescription.contains("01"))
     }
   }
 

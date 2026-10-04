@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0 WITH Swift-exception
+# Copyright (c) 2026 Xudong Xu and the swift-library project authors
+
+"""Run an independent iOS 18 deployment consumer on a selected simulator."""
+
+import argparse
+import json
+from pathlib import Path
+import subprocess
+import tempfile
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--destination", required=True, help="Explicit xcodebuild simulator destination")
+args = parser.parse_args()
+root = Path(__file__).resolve().parent.parent
+with tempfile.TemporaryDirectory(prefix="semver-ios-consumer-") as directory:
+    consumer = Path(directory)
+    (consumer / "Sources/Consumer").mkdir(parents=True)
+    (consumer / "Tests/ConsumerTests").mkdir(parents=True)
+    (consumer / "Package.swift").write_text(
+        '// swift-tools-version: 6.0\nimport PackageDescription\n'
+        'let package = Package(name: "Consumer", platforms: [.iOS(.v18)], '
+        'products: [.library(name: "Consumer", targets: ["Consumer"])], '
+        'dependencies: [.package(path: ' + json.dumps(str(root)) + ')], '
+        'targets: [.target(name: "Consumer", dependencies: [.product(name: "SemVer", package: "swift-semver")]), '
+        '.testTarget(name: "ConsumerTests", dependencies: ["Consumer", .product(name: "SemVer", package: "swift-semver")])])\n'
+    )
+    (consumer / "Sources/Consumer/Consumer.swift").write_text('import SemVer\npublic let minimum = Version(1, 2, 0)\n')
+    (consumer / "Tests/ConsumerTests/ConsumerTests.swift").write_text('''import Consumer
+import Foundation
+import SemVer
+import Testing
+
+@Test func publicSemanticsOnIOS() throws {
+  let preview = try Version(parsing: "1.3.0-alpha.1+build")
+  #expect(preview > minimum)
+  #expect(preview.isPrerelease && !preview.isStable)
+  #expect(Version("01.2.3") == nil)
+  let range = try VersionRequirement(parsing: ">=1.2.0-alpha && <2.0.0")
+  #expect(range.contains(preview))
+  #expect(!range.contains(try Version(parsing: "2.0.0-alpha")))
+  #expect(try preview.incrementingPrerelease().description == "1.3.0-alpha.2")
+  #expect(try preview.incrementing(.minor) == Version(1, 4, 0))
+  #expect(try JSONDecoder().decode(Version.self, from: JSONEncoder().encode(preview)).description == preview.description)
+  #expect(try VersionRequirement(parsing: VersionRequirement.empty.description) == .empty)
+}
+''')
+    evidence = root / ".build/release-validation"
+    evidence.mkdir(parents=True, exist_ok=True)
+    result = evidence / ("ios-" + args.destination.split("id=")[-1] + ".xcresult")
+    if result.exists():
+        parser.error("Result already exists; select a fresh evidence directory or remove the owned result")
+    subprocess.run(["xcodebuild", "test", "-scheme", "Consumer", "-destination", args.destination,
+                    "-derivedDataPath", str(consumer / ".build/xcode"), "-resultBundlePath", str(result),
+                    "IPHONEOS_DEPLOYMENT_TARGET=18.0", "CODE_SIGNING_ALLOWED=NO"], cwd=consumer, check=True)
