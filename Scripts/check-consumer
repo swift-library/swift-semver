@@ -4,13 +4,27 @@
 
 """Build and run an independent local SwiftPM consumer."""
 
+import argparse
 import json
 from pathlib import Path
 import subprocess
 import tempfile
 
 
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument("--repository", help="Remote SwiftPM repository URL")
+reference = parser.add_mutually_exclusive_group()
+reference.add_argument("--revision", help="Remote candidate commit")
+reference.add_argument("--version", help="Released version, using a next-minor requirement")
+args = parser.parse_args()
+if bool(args.repository) != bool(args.revision or args.version):
+    parser.error("Use --repository with --revision or --version")
 root = Path(__file__).resolve().parent.parent
+if args.repository:
+    requirement = ('revision: ' + json.dumps(args.revision)) if args.revision else ('.upToNextMinor(from: ' + json.dumps(args.version) + ')')
+    dependency = '.package(url: ' + json.dumps(args.repository) + ', ' + requirement + ')'
+else:
+    dependency = '.package(path: ' + json.dumps(str(root)) + ')'
 with tempfile.TemporaryDirectory(prefix="swift-semver-consumer-") as directory:
     consumer = Path(directory)
     source = consumer / "Sources/Consumer"
@@ -21,7 +35,7 @@ with tempfile.TemporaryDirectory(prefix="swift-semver-consumer-") as directory:
         'let package = Package(\n'
         '  name: "Consumer",\n'
         '  platforms: [.macOS(.v15)],\n'
-        '  dependencies: [.package(path: ' + json.dumps(str(root)) + ')],\n'
+        '  dependencies: [' + dependency + '],\n'
         '  targets: [.executableTarget(name: "Consumer", dependencies: [\n'
         '    .product(name: "SemVer", package: "swift-semver")\n'
         '  ])]\n'
@@ -37,10 +51,51 @@ guard let version = Version(input), version > Version(1, 2, 0) else {
 precondition(version.description == input)
 precondition(Version("01.2.3") == nil)
 precondition(Version("v1.2.3") == nil)
+let preview = try Version(parsing: "1.2.3-alpha.1+build.42")
+precondition(preview.isPrerelease && !preview.isStable)
+precondition(preview < Version(1, 2, 3))
+precondition(Version(1, 2, 3).isStable)
+precondition(!Version(0, 1, 0).isStable)
+let requirement = try VersionRequirement(parsing: ">=1.2.0 && <2.0.0")
+precondition(requirement.contains(Version(1, 3, 0)))
+precondition(!requirement.contains(preview))
+precondition(requirement.contains(preview, includingPrereleases: true))
+let previewRange = try VersionRequirement(parsing: ">=1.2.0-alpha && <2.0.0")
+precondition(previewRange.contains(version))
+let upperPreview = try Version(parsing: "2.0.0-alpha")
+precondition(!previewRange.contains(upperPreview))
+precondition(VersionRequirement(Version(1, 2, 0)..<Version(2, 0, 0)).contains(Version(1, 9, 0)))
+let caret = try VersionRequirement(parsing: "^0.2.3")
+precondition(caret.contains(Version(0, 2, 9)))
+let empty = VersionRequirement(any: [])
+precondition(empty == .empty && empty.description == "empty")
+precondition(!empty.contains(version, includingPrereleases: true))
+let parsedEmpty = try VersionRequirement(parsing: empty.description)
+precondition(parsedEmpty == empty)
+let nextMinor = try version.incrementing(.minor)
+precondition(nextMinor == Version(1, 4, 0))
+let nextPreview = try preview.incrementingPrerelease()
+precondition(nextPreview.description == "1.2.3-alpha.2")
+precondition(preview.releasing().description == "1.2.3")
+do {
+  _ = try Version(parsing: "1.2.3-alpha.01")
+  fatalError("Invalid prerelease parsing should fail")
+} catch {
+  precondition(error == .leadingZeroInPrereleaseIdentifier(index: 1, value: "01"))
+}
 let encoded = try JSONEncoder().encode(version)
 let decoded = try JSONDecoder().decode(Version.self, from: encoded)
 precondition(decoded.description == input)
+let encodedRequirement = try JSONEncoder().encode(previewRange)
+let decodedRequirement = try JSONDecoder().decode(VersionRequirement.self, from: encodedRequirement)
+precondition(decodedRequirement.description == previewRange.description)
 precondition(Set([Version(1, 2, 3), Version(1, 2, 3, buildMetadataIdentifiers: ["build"])]).count == 1)
 print("SemVer consumer passed")
 ''')
     subprocess.run(["swift", "run", "--package-path", str(consumer), "-c", "release", "Consumer"], check=True)
+    if args.repository:
+        evidence = root / ".build/release-validation"
+        evidence.mkdir(parents=True, exist_ok=True)
+        lock = consumer / "Package.resolved"
+        if lock.exists():
+            (evidence / "remote-consumer-Package.resolved").write_bytes(lock.read_bytes())

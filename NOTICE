@@ -14,8 +14,13 @@ Files:
 Licensed under Apache License 2.0 with the Swift Runtime Library Exception.
 Contributors: https://github.com/swiftlang/swift-package-manager/graphs/contributors
 
-The adapted implementation provides standalone failable parsing, strict ASCII
+The adapted implementation provides standalone failable and throwing parsing,
+structured diagnostics, prerelease and stable version status, strict ASCII
 identifier validation, canonical core and numeric prerelease validation,
 overflow-safe numeric prerelease ordering, Hashable and string Codable support.
 Version precedence follows SwiftPM, including equality that ignores build metadata.
 This package is independently maintained by swift-library.
+
+Version requirements and increment operations are original swift-library code.
+Half-open requirement matching follows SwiftPM's prerelease eligibility rules;
+additional comparison syntax and increment behavior are defined by this package.

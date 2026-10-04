@@ -18,11 +18,17 @@ public struct Version: Sendable {
   /// The patch version component.
   public let patch: Int
 
-  /// Dot-separated prerelease identifiers; an empty array denotes a stable version.
+  /// Dot-separated prerelease identifiers; an empty array denotes a release version.
   public let prereleaseIdentifiers: [String]
 
   /// Dot-separated build metadata, preserved independently of version precedence.
   public let buildMetadataIdentifiers: [String]
+
+  /// Whether the version has prerelease identifiers, such as alpha, beta or rc.
+  public var isPrerelease: Bool { !prereleaseIdentifiers.isEmpty }
+
+  /// Whether the version has a positive major component and no prerelease identifiers.
+  public var isStable: Bool { major > 0 && !isPrerelease }
 
   /// Creates a version from validated components.
   ///
@@ -50,7 +56,7 @@ public struct Version: Sendable {
     self.buildMetadataIdentifiers = buildMetadataIdentifiers
   }
 
-  private static func isNumeric<S: StringProtocol>(_ identifier: S) -> Bool {
+  static func isNumeric<S: StringProtocol>(_ identifier: S) -> Bool {
     !identifier.isEmpty && identifier.utf8.allSatisfy { (48...57).contains($0) }
   }
 
@@ -63,7 +69,11 @@ public struct Version: Sendable {
 
   private static func isValidPrereleaseIdentifier(_ identifier: String) -> Bool {
     isValidIdentifier(identifier)
-      && (!isNumeric(identifier) || identifier == "0" || identifier.first != "0")
+      && (!isNumeric(identifier) || !hasLeadingZero(identifier))
+  }
+
+  private static func hasLeadingZero<S: StringProtocol>(_ identifier: S) -> Bool {
+    identifier.count > 1 && identifier.first == "0"
   }
 }
 
@@ -74,7 +84,20 @@ extension Version: LosslessStringConvertible {
   /// range. Prefixes, surrounding whitespace and missing core components are
   /// invalid. Numeric prerelease identifiers may contain arbitrarily many digits.
   public init?(_ versionString: String) {
-    guard versionString.allSatisfy(\.isASCII) else { return nil }
+    do {
+      try self.init(parsing: versionString)
+    } catch {
+      return nil
+    }
+  }
+
+  /// Parses a strict semantic version, reporting the invalid component or identifier.
+  ///
+  /// Accepts the same syntax as the failable initializer. Core components must fit
+  /// in a nonnegative Int; numeric prerelease identifiers have no integer size limit.
+  /// Identifier indexes in parsing errors are zero-based within their component list.
+  public init(parsing versionString: String) throws(ParseError) {
+    guard versionString.allSatisfy(\.isASCII) else { throw .nonASCII }
 
     let metadataDelimiter = versionString.firstIndex(of: "+")
     let prereleaseDelimiter = versionString[..<(metadataDelimiter ?? versionString.endIndex)]
@@ -84,22 +107,38 @@ extension Version: LosslessStringConvertible {
     ]
     .split(separator: ".", omittingEmptySubsequences: false)
 
-    func component(_ text: Substring) -> Int? {
-      guard Self.isNumeric(text), text == "0" || text.first != "0" else { return nil }
-      return Int(text)
+    guard core.count == 3 else { throw .invalidCoreComponentCount(core.count) }
+
+    func component(_ text: Substring, index: Int) throws(ParseError) -> Int {
+      guard Self.isNumeric(text) else {
+        throw .invalidCoreComponent(index: index, value: String(text))
+      }
+      guard !Self.hasLeadingZero(text) else {
+        throw .leadingZeroInCoreComponent(index: index, value: String(text))
+      }
+      guard let value = Int(text) else {
+        throw .coreComponentOverflow(index: index, value: String(text))
+      }
+      return value
     }
 
-    guard core.count == 3,
-      let major = component(core[0]),
-      let minor = component(core[1]),
-      let patch = component(core[2])
-    else { return nil }
+    let major = try component(core[0], index: 0)
+    let minor = try component(core[1], index: 1)
+    let patch = try component(core[2], index: 2)
 
     let prereleaseIdentifiers: [String]
     if let prereleaseDelimiter {
       let start = versionString.index(after: prereleaseDelimiter)
       prereleaseIdentifiers = versionString[start..<(metadataDelimiter ?? versionString.endIndex)]
         .split(separator: ".", omittingEmptySubsequences: false).map(String.init)
+      for (index, identifier) in prereleaseIdentifiers.enumerated() {
+        guard Self.isValidIdentifier(identifier) else {
+          throw .invalidPrereleaseIdentifier(index: index, value: identifier)
+        }
+        guard !Self.isNumeric(identifier) || !Self.hasLeadingZero(identifier) else {
+          throw .leadingZeroInPrereleaseIdentifier(index: index, value: identifier)
+        }
+      }
     } else {
       prereleaseIdentifiers = []
     }
@@ -109,13 +148,14 @@ extension Version: LosslessStringConvertible {
       let start = versionString.index(after: metadataDelimiter)
       buildMetadataIdentifiers = versionString[start...]
         .split(separator: ".", omittingEmptySubsequences: false).map(String.init)
+      for (index, identifier) in buildMetadataIdentifiers.enumerated() {
+        guard Self.isValidIdentifier(identifier) else {
+          throw .invalidBuildMetadataIdentifier(index: index, value: identifier)
+        }
+      }
     } else {
       buildMetadataIdentifiers = []
     }
-
-    guard prereleaseIdentifiers.allSatisfy(Self.isValidPrereleaseIdentifier),
-      buildMetadataIdentifiers.allSatisfy(Self.isValidIdentifier)
-    else { return nil }
 
     self.major = major
     self.minor = minor
@@ -192,10 +232,13 @@ extension Version: Codable {
   public init(from decoder: any Decoder) throws {
     let container = try decoder.singleValueContainer()
     let text = try container.decode(String.self)
-    guard let version = Self(text) else {
-      throw DecodingError.dataCorruptedError(
-        in: container, debugDescription: "Invalid semantic version.")
+    do {
+      self = try Self(parsing: text)
+    } catch {
+      throw DecodingError.dataCorrupted(
+        .init(
+          codingPath: container.codingPath, debugDescription: error.description,
+          underlyingError: error))
     }
-    self = version
   }
 }
