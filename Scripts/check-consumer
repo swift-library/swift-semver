@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import subprocess
 import tempfile
+from urllib.parse import urlparse
 
 
 parser = argparse.ArgumentParser(description=__doc__)
@@ -20,6 +21,7 @@ args = parser.parse_args()
 if bool(args.repository) != bool(args.revision or args.version):
     parser.error("Use --repository with --revision or --version")
 root = Path(__file__).resolve().parent.parent
+identity = Path(urlparse(args.repository).path).name.removesuffix(".git").lower() if args.repository else root.name.lower()
 if args.repository:
     requirement = ('revision: ' + json.dumps(args.revision)) if args.revision else ('.upToNextMinor(from: ' + json.dumps(args.version) + ')')
     dependency = '.package(url: ' + json.dumps(args.repository) + ', ' + requirement + ')'
@@ -37,7 +39,7 @@ with tempfile.TemporaryDirectory(prefix="swift-semver-consumer-") as directory:
         '  platforms: [.macOS(.v15)],\n'
         '  dependencies: [' + dependency + '],\n'
         '  targets: [.executableTarget(name: "Consumer", dependencies: [\n'
-        '    .product(name: "SemVer", package: "swift-semver")\n'
+        '    .product(name: "SemVer", package: ' + json.dumps(identity) + ')\n'
         '  ])]\n'
         ')\n'
     )
