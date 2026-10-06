@@ -1,5 +1,10 @@
 # ``SemVer``
 
+@Metadata {
+  @PageImage(purpose: icon, source: "Logo", alt: "swift-semver logo")
+  @PageColor(green)
+}
+
 Parse, compare, constrain and increment immutable semantic versions.
 
 ## Overview
