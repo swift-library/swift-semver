@@ -6,7 +6,7 @@ import PackageDescription
 
 let package = Package(
   name: "swift-semver",
-  platforms: [.iOS(.v18), .macOS(.v15)],
+  platforms: [.iOS(.v15), .macOS(.v12)],
   products: [.library(name: "SemVer", targets: ["SemVer"])],
   targets: [
     .target(name: "SemVer"),

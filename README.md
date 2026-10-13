@@ -11,7 +11,7 @@
 <p align="center">
   <a href="https://github.com/swift-library/swift-semver/actions/workflows/ci.yml"><img src="https://github.com/swift-library/swift-semver/actions/workflows/ci.yml/badge.svg?branch=master" alt="CI"></a>
   <img src="https://img.shields.io/badge/Swift-6.0%2B-F05138" alt="Swift 6.0+">
-  <img src="https://img.shields.io/badge/platforms-iOS%2018%2B%20%7C%20macOS%2015%2B%20%7C%20Linux-lightgrey" alt="Platforms: iOS 18+ | macOS 15+ | Linux">
+  <img src="https://img.shields.io/badge/platforms-iOS%2015%2B%20%7C%20macOS%2012%2B%20%7C%20Linux-lightgrey" alt="Platforms: iOS 15+ | macOS 12+ | Linux">
   <a href="LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License: Apache-2.0 WITH Swift-exception"></a>
 </p>
 
@@ -243,7 +243,7 @@ clears both identifier lists. An increment that would exceed `Int.max` throws
 ## Requirements
 
 - Swift 6.0 or later
-- iOS 18 or later, macOS 15 or later, and Linux
+- iOS 15 or later, macOS 12 or later, and Linux
 
 The system support window currently covers iOS 18, 26, and 27, and macOS 15,
 26, and 27. CI runs the tests on macOS with Swift 6.0 and a current compiler,
@@ -268,7 +268,7 @@ describes compatibility and maintenance.
 Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, and run
 `Scripts/check` before submitting changes. Report vulnerabilities through the
 private route in [SECURITY.md](SECURITY.md). This project follows the
-[code of conduct](CODE_OF_CONDUCT.md).
+[code of conduct](https://github.com/swift-library/.github/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
