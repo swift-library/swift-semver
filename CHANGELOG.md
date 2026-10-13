@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.1.1
+
 - Lower deployment requirements to iOS 15 and macOS 12.
 
 ## 0.1.0
