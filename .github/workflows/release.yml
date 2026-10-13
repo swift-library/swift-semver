@@ -10,7 +10,7 @@ permissions:
   contents: read
 jobs:
   validate:
-    uses: swift-library/.github/.github/workflows/swift-package-ci.yml@60bb05529ee5ecef054c5019e615ddf8198309eb
+    uses: swift-library/.github/.github/workflows/swift-package-ci.yml@c78fc385d51fa49d4adf9782c6689198064c9d9a
     with:
       ref: ${{ inputs.tag }}
   publish:
@@ -18,7 +18,7 @@ jobs:
     permissions:
       contents: write
       actions: read
-    uses: swift-library/.github/.github/workflows/swift-package-release.yml@60bb05529ee5ecef054c5019e615ddf8198309eb
+    uses: swift-library/.github/.github/workflows/swift-package-release.yml@c78fc385d51fa49d4adf9782c6689198064c9d9a
     with:
       tag: ${{ inputs.tag }}
       accepted_commit: ${{ needs.validate.outputs.commit }}
