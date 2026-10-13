@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0 WITH Swift-exception
 # Copyright (c) 2026 Xudong Xu and the swift-library project authors
 
-"""Run an independent iOS 18 deployment consumer on a selected simulator."""
+"""Run an independent iOS 15 deployment consumer on a selected simulator."""
 
 import argparse
 import json
@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory(prefix="semver-ios-consumer-") as directory:
     (consumer / "Tests/ConsumerTests").mkdir(parents=True)
     (consumer / "Package.swift").write_text(
         '// swift-tools-version: 6.0\nimport PackageDescription\n'
-        'let package = Package(name: "Consumer", platforms: [.iOS(.v18)], '
+        'let package = Package(name: "Consumer", platforms: [.iOS(.v15)], '
         'products: [.library(name: "Consumer", targets: ["Consumer"])], '
         'dependencies: [.package(path: ' + json.dumps(str(root)) + ')], '
         'targets: [.target(name: "Consumer", dependencies: [.product(name: "SemVer", package: ' + json.dumps(root.name.lower()) + ')]), '
@@ -54,4 +54,4 @@ import Testing
         parser.error("Result already exists; select a fresh evidence directory or remove the owned result")
     subprocess.run(["xcodebuild", "test", "-scheme", "Consumer", "-destination", args.destination,
                     "-derivedDataPath", str(consumer / ".build/xcode"), "-resultBundlePath", str(result),
-                    "IPHONEOS_DEPLOYMENT_TARGET=18.0", "CODE_SIGNING_ALLOWED=NO"], cwd=consumer, check=True)
+                    "IPHONEOS_DEPLOYMENT_TARGET=15.0", "CODE_SIGNING_ALLOWED=NO"], cwd=consumer, check=True)

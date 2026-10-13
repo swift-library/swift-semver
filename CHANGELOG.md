@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Lower deployment requirements to iOS 15 and macOS 12.
+
 ## 0.1.0
 
 - Provide an immutable, dependency-free `SemVer.Version`, adapted from SwiftPM.
