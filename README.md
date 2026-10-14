@@ -32,11 +32,9 @@
 
 ## Overview
 
-Parse, compare, constrain, and increment SemVer 2.0.0 versions using only the Swift standard library. `Version` preserves build metadata for display and encoding while comparisons follow SemVer precedence. `VersionRequirement` checks ranges and comparison expressions with explicit prerelease rules; see the [SemVer module documentation](Sources/SemVer/SemVer.docc/SemVer.md).
+Keep release ordering separate from the metadata you display or encode. `Version` preserves build metadata while comparisons follow SemVer precedence, and `VersionRequirement` matches ranges and expressions with explicit prerelease rules. See the [SemVer module documentation](Sources/SemVer/SemVer.docc/SemVer.md) for the contracts and limits.
 
 ## Quick look
-
-Parse, compare, constrain, and increment a version:
 
 ```swift
 import SemVer
@@ -44,7 +42,7 @@ import SemVer
 let version = try Version(parsing: "1.3.0+build.42")
 let requirement = try VersionRequirement(parsing: ">=1.2.0 && <2.0.0")
 
-print(version > Version(1, 2, 0))         // true
+print(version > Version(1, 2, 0))        // true
 print(requirement.contains(version))     // true
 print(try version.incrementing(.minor))  // 1.4.0
 print(version.description)               // 1.3.0+build.42
