@@ -2,7 +2,7 @@
   <a href="https://github.com/swift-library/swift-semver"><img src="Documentation/Assets/Logo.svg" width="160" alt="swift-semver logo"></a>
 </p>
 
-<h1 align="center">swift-semver</h1>
+<h1 align="center" dir="ltr">swift-semver</h1>
 
 <p align="center">
   Parse, compare, constrain, and increment SemVer 2.0.0 versions using only the Swift standard library.
