@@ -1,5 +1,7 @@
 # Documentation
 
+- [Usage guide](Reference/Usage.md): parsing, comparison, requirements, and increments.
+
 - [Versioning and Release](Architecture/VersioningAndRelease.md) owns compatibility,
   supported environments and release acceptance.
 - [Release Guide](Reference/ReleaseGuide.md) describes candidate validation and publication.
