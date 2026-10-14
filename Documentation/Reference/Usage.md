@@ -1,6 +1,6 @@
 # Usage guide
 
-### Parsing versions
+## Parsing versions
 
 `Version("1.2.3")` returns `nil` for invalid input. `try Version(parsing:)`
 accepts the same syntax and throws a `Version.ParseError` that names the
@@ -35,7 +35,7 @@ let beta = Version(2, 0, 0, prereleaseIdentifiers: ["beta", "3"], buildMetadataI
 print(beta) // 2.0.0-beta.3+exp
 ```
 
-### Comparing versions
+## Comparing versions
 
 Ordering follows SemVer 2.0.0 precedence. A prerelease sorts before its
 release, numeric prerelease identifiers compare numerically, and numeric
@@ -72,7 +72,7 @@ print(Set([first, second]).count) // 1
 parser, and a malformed string throws `DecodingError.dataCorrupted` with the
 `Version.ParseError` as its underlying error.
 
-### Matching requirements
+## Matching requirements
 
 `VersionRequirement` holds alternatives of comparison groups. Every comparison
 in a group must match, and one matching group satisfies the requirement:
@@ -109,7 +109,7 @@ let alternatives = VersionRequirement(any: [
 `VersionRequirement.empty` matches nothing. The description is a canonical
 expression, and `Codable` stores that expression as a single string.
 
-### Prerelease matching
+## Prerelease matching
 
 By default, `contains(_:)` follows SwiftPM's half-open range behavior. A
 comparison group accepts a prerelease only when one of its versions is a
@@ -129,7 +129,7 @@ print(previews.contains(preview)) // true
 print(previews.contains(nextMajorPreview)) // false
 ```
 
-### Incrementing versions
+## Incrementing versions
 
 Increments return a new version and leave the original unchanged:
 
