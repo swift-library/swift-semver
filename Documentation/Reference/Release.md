@@ -63,7 +63,7 @@ Keep compiler, platform and consumer evidence with the release.
 | Candidate validation and build | `Scripts/check` | Swift toolchain and `xcrun swift-format`. |
 | iOS simulator validation | `Scripts/check-ios --destination <simulator-destination>` | Xcode and an explicitly selected simulator. |
 | Status and interrupted-run recovery | Not established. | Not established. |
-| Acceptance and publication | Verify the published version with `Scripts/check-consumer --repository https://github.com/swift-library/swift-semver.git --version X.Y.Z`. | Swift toolchain and remote repository access. |
+| Acceptance and publication | Run [`Release`](../../.github/workflows/release.yml) with the accepted tag; it validates the tag and publishes the GitHub release. Verify the published version with `Scripts/check-consumer --repository https://github.com/swift-library/swift-semver.git --version X.Y.Z`. | Swift toolchain and remote repository access; repository write access to run workflows |
 | Cleanup | Not established. | Not established. |
 
 Evidence belongs in `.build/release-validation`.
