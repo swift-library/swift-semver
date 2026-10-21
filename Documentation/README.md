@@ -2,9 +2,7 @@
 
 - [Usage guide](Reference/Usage.md): parsing, comparison, requirements, and increments.
 
-- [Versioning and Release](Architecture/VersioningAndRelease.md) owns compatibility,
-  supported environments and release acceptance.
-- [Release Guide](Reference/ReleaseGuide.md) describes candidate validation and publication.
+- [Release](Reference/Release.md): release facts and mechanics; version rules are in VERSIONING.
 - [SemVer module](../Sources/SemVer/SemVer.docc/SemVer.md) documents the public library APIs.
 
 [README](../README.md) owns package usage. Public declarations document their
