@@ -90,7 +90,7 @@ prerelease matching, range construction, encoding, and checked increments.
 The system support window currently covers iOS 18, 26, and 27, and macOS 15,
 26, and 27. CI runs the tests on macOS with Swift 6.0 and a current compiler,
 and on Linux with Swift 6.0. The
-[versioning and release policy](Documentation/Architecture/VersioningAndRelease.md)
+[release reference](Documentation/Reference/Release.md)
 describes compatibility and maintenance.
 
 ## Documentation
@@ -102,8 +102,7 @@ describes compatibility and maintenance.
   expression syntax, 0.x caret bounds, prerelease rules, and serialization.
 - [Incrementing versions](Sources/SemVer/SemVer.docc/Incrementing.md): core
   and prerelease increments and overflow errors.
-- [Versioning and release policy](Documentation/Architecture/VersioningAndRelease.md)
-  and [release guide](Documentation/Reference/ReleaseGuide.md)
+- [Release](Documentation/Reference/Release.md): release facts and mechanics; version rules are in VERSIONING.
 - [Changelog](CHANGELOG.md)
 
 ## Contributing
