@@ -63,6 +63,8 @@ points.
 - `AGENTS.md` is the agent guide for package work.
 - `README.md` is the user-facing package manual and index.
 - `Package.swift` owns SwiftPM package structure.
+- `.github/swift-package.json` owns the shared validation configuration.
+- `.github/release.json` owns release fields.
 - Source and test files own implementation behavior.
 
 ## Boundary Guardrails
@@ -74,6 +76,9 @@ points.
 
 ## Operating Notes
 
+- Run `swift build`, `swift test`, `swift build -c release` and
+  `xcrun swift-format lint --strict --configuration .swift-format --recursive Package.swift Sources Tests`.
+  See `CONTRIBUTING.md` for local validation and required checks.
 - Keep this guide compact. Put durable user-facing explanations in `README.md`
   or focused docs.
 

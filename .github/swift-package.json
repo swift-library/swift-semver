@@ -1,0 +1,35 @@
+{
+  "compilers": [
+    {
+      "name": "macos-15-swift-6.0",
+      "runner": "macos-15",
+      "xcode": "16.2"
+    },
+    {
+      "name": "macos-26-swift-6.3",
+      "runner": "macos-26",
+      "xcode": "26.6"
+    }
+  ],
+  "platforms": {
+    "linux": [
+      {
+        "name": "linux-swift-6.0",
+        "image": "swift:6.0.3-jammy@sha256:b394f699c1844fabf5c01d8a5673639141dc007f500661a4fa56f4ba1f23d87b"
+      }
+    ],
+    "apple": [
+      {
+        "name": "ios",
+        "platform": "iOS",
+        "scheme": "swift-semver",
+        "test": true
+      }
+    ]
+  },
+  "docs": {
+    "targets": [
+      "SemVer"
+    ]
+  }
+}

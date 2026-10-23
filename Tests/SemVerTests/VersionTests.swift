@@ -104,7 +104,8 @@ struct VersionTests {
   @Test func specificationPrecedence() throws {
     let texts = [
       "0.9.9", "1.0.0-alpha", "1.0.0-alpha.1", "1.0.0-alpha.beta", "1.0.0-beta",
-      "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1", "1.0.0", "1.0.1", "1.1.0", "2.0.0",
+      "1.0.0-beta.2", "1.0.0-beta.11", "1.0.0-rc.1", "1.0.0", "1.0.1", "1.1.0",
+      "1.3.0-rc.1+build.42", "2.0.0",
     ]
     let versions = try texts.map { try #require(Version($0)) }
     for i in versions.indices {

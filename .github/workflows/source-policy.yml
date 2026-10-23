@@ -9,6 +9,7 @@ concurrency:
   cancel-in-progress: true
 permissions:
   contents: read
+  actions: read
 jobs:
   policy:
-    uses: swift-library/.github/.github/workflows/policy.yml@43cc21f34684e47903762f6eb616c545b003c5ea
+    uses: swift-library/github-workflows/.github/workflows/policy.yml@37ca96825daa6c5517bb118a233449dd564b4869
