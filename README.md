@@ -88,8 +88,8 @@ prerelease matching, range construction, encoding, and checked increments.
 - iOS 15 or later, macOS 12 or later, and Linux
 
 The system support window currently covers iOS 18, 26, and 27, and macOS 15,
-26, and 27. CI runs the tests on macOS with Swift 6.0 and a current compiler,
-and on Linux with Swift 6.0. The
+26, and 27. CI runs the tests on macOS with Swift 6.0 and 6.3, on Linux with
+Swift 6.0.3, and on an iOS simulator. The
 [release reference](Documentation/Reference/Release.md)
 describes compatibility and maintenance.
 
@@ -107,8 +107,9 @@ describes compatibility and maintenance.
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request, and run
-`Scripts/check` before submitting changes. Report vulnerabilities through the
+Read [CONTRIBUTING.md](CONTRIBUTING.md) and run its
+[local validation commands](CONTRIBUTING.md#local-validation) before submitting
+changes. Report vulnerabilities through the
 private route in [SECURITY.md](SECURITY.md). This project follows the
 [code of conduct](https://github.com/swift-library/.github/blob/master/CODE_OF_CONDUCT.md).
 

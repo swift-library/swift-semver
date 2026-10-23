@@ -144,6 +144,8 @@ struct RequirementTests {
     let halfOpen = VersionRequirement(lower..<upper)
     let closed = VersionRequirement(lower...upper)
     let beforeUpper = try Version(parsing: "2.0.0-alpha")
+    #expect(halfOpen.contains(Version(1, 9, 0)))
+    #expect(closed.contains(Version(1, 9, 0)))
     #expect(!halfOpen.contains(upper))
     #expect(closed.contains(upper))
     #expect(!halfOpen.contains(beforeUpper))
