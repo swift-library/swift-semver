@@ -7,13 +7,13 @@ permissions:
   actions: read
 jobs:
   validate:
-    uses: swift-library/github-workflows/.github/workflows/swift-package.yml@37ca96825daa6c5517bb118a233449dd564b4869
+    uses: swift-library/github-workflows/.github/workflows/swift-package.yml@17e33c3a130ed207bcf80ccfbbe54fcd481d953b
   release:
     needs: validate
     permissions:
       contents: write
       actions: read
-    uses: swift-library/github-workflows/.github/workflows/swift-package-release.yml@37ca96825daa6c5517bb118a233449dd564b4869
+    uses: swift-library/github-workflows/.github/workflows/swift-package-release.yml@17e33c3a130ed207bcf80ccfbbe54fcd481d953b
     with:
       tag: ${{ github.ref_name }}
       accepted_commit: ${{ github.sha }}

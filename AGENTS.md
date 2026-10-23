@@ -77,8 +77,10 @@ points.
 ## Operating Notes
 
 - Run `swift build`, `swift test`, `swift build -c release` and
-  `xcrun swift-format lint --strict --configuration .swift-format --recursive Package.swift Sources Tests`.
+  `swift format lint --strict --configuration .swift-format --recursive Package.swift Sources Tests`.
   See `CONTRIBUTING.md` for local validation and required checks.
+- Keep the single CI compiler entry in `.github/swift-package.json` and the
+  package and release minimums consistent with the organization VERSIONING.
 - Keep this guide compact. Put durable user-facing explanations in `README.md`
   or focused docs.
 
@@ -89,8 +91,9 @@ points.
 - Flag a change to the compatibility surface recorded in
   `Documentation/Reference/Release.md`, such as public API, observable
   behavior or a raised minimum platform or Swift version, without the
-  changelog entry and version bump VERSIONING requires. Safe path: record the
-  change under the next version with that bump.
+  changelog entry VERSIONING requires. Safe path: record the change under
+  `Unreleased`, marking breaking changes with **Breaking**, and assign the
+  version during release.
 
 ### Claims
 
