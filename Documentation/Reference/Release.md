@@ -28,14 +28,15 @@ values or compiler and platform requirements affect compatibility.
 
 ## Dependencies and Verified Combinations
 
-The package requires Swift 6.0, iOS 15 or macOS 12, and supports Linux.
+The package requires Swift 6.3, iOS 18 or macOS 15, and supports Linux.
 The maintained system window covers iOS 18/26/27 and macOS 15/26/27.
 [`.github/swift-package.json`](../../.github/swift-package.json) selects the
-compiler and platform matrix. CI runs tests and release builds on macOS with
-Swift 6.0 and 6.3, and tests on Linux with Swift 6.0.3 in a digest-pinned image.
+single compiler and platform jobs. CI runs tests and release builds on macOS 26
+with Xcode 26.6. Linux validation uses the declared digest-pinned image.
 The Apple platform job builds `SemVer` for iOS and runs its tests on a simulator
 matching the selected Xcode SDK. Formatting and the `SemVer` DocC catalog use
-the last declared compiler.
+the same Xcode. API availability for older supported systems is checked at
+compile time against the latest SDK.
 
 ## Derived Metadata and Drift Checks
 
@@ -59,7 +60,7 @@ changelog notes as the GitHub release.
 | Operation | Existing command or explicit manual procedure | Required access |
 | --- | --- | --- |
 | Version update and check | Update `VERSION` and `CHANGELOG.md` under VERSIONING; the shared policy workflow checks them. | Repository write access. |
-| Candidate validation and build | [Local validation commands](../../CONTRIBUTING.md#local-validation); CI runs the declared shared jobs. | Swift toolchain and `xcrun swift-format`. |
+| Candidate validation and build | [Local validation commands](../../CONTRIBUTING.md#local-validation); CI runs the declared shared jobs. | Swift toolchain and `swift format`. |
 | iOS simulator validation | The shared Apple platform job builds and tests the `swift-semver` scheme. | Xcode and its matching iOS simulator runtime. |
 | Status and interrupted-run recovery | Not established. | Not established. |
 | Acceptance and publication | Push the accepted signed version tag to run [`Release`](../../.github/workflows/release.yml). | Repository write access and the maintainer's signing key. |

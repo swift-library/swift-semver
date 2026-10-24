@@ -1,12 +1,7 @@
 {
   "compilers": [
     {
-      "name": "macos-15-swift-6.0",
-      "runner": "macos-15",
-      "xcode": "16.2"
-    },
-    {
-      "name": "macos-26-swift-6.3",
+      "name": "macos-26-xcode-26.6",
       "runner": "macos-26",
       "xcode": "26.6"
     }
@@ -14,8 +9,8 @@
   "platforms": {
     "linux": [
       {
-        "name": "linux-swift-6.0",
-        "image": "swift:6.0.3-jammy@sha256:b394f699c1844fabf5c01d8a5673639141dc007f500661a4fa56f4ba1f23d87b"
+        "name": "linux-swift-6.3",
+        "image": "swift:6.3.3-noble@sha256:c2f3ac2eb806ce43f68859c3d52bd3bb1cfc88672fb3a948b76e136d98e39278"
       }
     ],
     "apple": [

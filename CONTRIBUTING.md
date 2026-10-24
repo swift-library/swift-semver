@@ -12,16 +12,19 @@ when changing compatibility, requirements or release inputs.
 
 ## Local validation
 
+Use Swift 6.3 or later. Shared CI uses Xcode 26.6 on macOS 26 for its single
+compiler entry and Apple platform checks.
+
 Run these commands before opening a pull request:
 
 ```sh
 swift build
 swift test
 swift build -c release
-xcrun swift-format lint --strict --configuration .swift-format --recursive Package.swift Sources Tests
+swift format lint --strict --configuration .swift-format --recursive Package.swift Sources Tests
 ```
 
 [`.github/swift-package.json`](.github/swift-package.json) declares the CI
-compilers, platforms and DocC target. Formatting defaults to `Package.swift`,
+compiler, platforms and DocC target. Formatting defaults to `Package.swift`,
 `Sources` and `Tests`. The required checks are `policy / policy` and
 `validate / result`.

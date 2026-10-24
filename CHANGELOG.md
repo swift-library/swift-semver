@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- **Breaking**: Require Swift 6.3 or later, iOS 18 or later, and macOS 15 or later.
+
 ## 0.1.1
 
 - Lower deployment requirements to iOS 15 and macOS 12.
